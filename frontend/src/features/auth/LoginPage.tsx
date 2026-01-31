@@ -20,14 +20,14 @@ export const LoginPage = () => {
     const [globalError, setGlobalError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
-    const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<LoginForm>({
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, clearErrors } = useForm<LoginForm>({
         resolver: zodResolver(loginSchema)
     });
 
     const toggleMode = (mode: boolean) => {
         setIsParentMode(mode);
         setGlobalError(null);
-        reset();
+        clearErrors();
     };
 
     const onSubmit = async (data: LoginForm) => {
