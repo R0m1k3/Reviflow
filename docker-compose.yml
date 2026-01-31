@@ -14,6 +14,10 @@ services:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+    networks:
+      - default
+      - nginx_default
+
   db:
     image: postgres:16-alpine
     environment:
@@ -27,6 +31,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - default
 
 volumes:
   postgres_data:
+
+
+networks:
+  nginx_default:
+    external: true
