@@ -31,17 +31,25 @@ export const LoginPage = () => {
     };
 
     const onSubmit = async (data: LoginForm) => {
+        console.log("DEBUG: Login form submitted", data);
         try {
             setGlobalError(null);
             const loginData = isParentMode
                 ? { email: data.identifier, password: data.password }
                 : { username: data.identifier, password: data.password };
 
+            console.log("DEBUG: Calling login with", loginData);
             await login(loginData);
+            console.log("DEBUG: Login successful, navigating");
             navigate('/');
         } catch (err) {
+            console.error("DEBUG: Login error caught in component", err);
             setGlobalError("Identifiants invalides ou erreur de connexion");
         }
+    };
+
+    const onError = (errors: any) => {
+        console.log("DEBUG: Form validation failed", errors);
     };
 
     return (
@@ -78,7 +86,7 @@ export const LoginPage = () => {
                         </button>
                     </div>
 
-                    <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+                    <form className="space-y-5" onSubmit={handleSubmit(onSubmit, onError)}>
                         {globalError && (
                             <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-sm font-medium flex items-center">
                                 <span className="mr-2">⚠️</span> {globalError}
@@ -134,7 +142,7 @@ export const LoginPage = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full h-12 flex items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                                className="w-full h-12 flex items-center justify-center rounded-2xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
                                 {isSubmitting ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
