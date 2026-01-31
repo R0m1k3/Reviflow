@@ -20,6 +20,7 @@ services:
       - default
       - nginx_default
 
+  db:
     image: postgres:16-alpine
     ports:
       - "5460:5432"
