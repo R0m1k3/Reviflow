@@ -20,7 +20,7 @@ export const LoginPage = () => {
     const [globalError, setGlobalError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
-    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, clearErrors } = useForm<LoginForm>({
+    const { register, handleSubmit, formState: { errors, isSubmitting }, clearErrors } = useForm<LoginForm>({
         resolver: zodResolver(loginSchema)
     });
 
