@@ -2,7 +2,8 @@
 FROM node:20-alpine as frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npm install
 COPY frontend/ ./
 RUN mkdir -p /app/backend/static && npm run build
 
