@@ -20,10 +20,9 @@ services:
       - default
       - nginx_default
 
-  db:
     image: postgres:16-alpine
     ports:
-      - "5499:5432"
+      - "5460:5432"
     environment:
       - POSTGRES_USER=reviflow
       - POSTGRES_PASSWORD=reviflow
