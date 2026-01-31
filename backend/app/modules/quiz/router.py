@@ -551,112 +551,123 @@ async def get_mastery_stats(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Calculates mastery level per topic."""
-    from app.modules.quiz.models import RemediationQueue
-    
-    # 1. Get all scores
-    scores_stmt = select(Score).where(Score.learner_id == learner_id)
-    result = await db.execute(scores_stmt)
-    scores = result.scalars().all()
-    
-    if not scores:
+    try:
+        from app.modules.quiz.models import RemediationQueue
+        
+        # 1. Get all scores
+        scores_stmt = select(Score).where(Score.learner_id == learner_id)
+        result = await db.execute(scores_stmt)
+        scores = result.scalars().all()
+        
+        if not scores:
+            return []
+
+        # 2. Group by Normalized Topic
+        # We want to merge "Maths" and "Maths (Remediation)" into "Maths"
+        # And we want to prioritize RECENT scores.
+        
+        topic_map = {}
+        
+        for s in scores:
+            if not s.topic: continue
+            # Normalize topic
+            clean_topic = s.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").strip()
+            
+            if clean_topic not in topic_map:
+                topic_map[clean_topic] = []
+            
+            topic_map[clean_topic].append(s)
+            
+        # 3. Calculate Mastery per Topic using Weighted Average of last 5 attempts
+        mastery_list = []
+        
+        # Pre-fetch errors to avoid N+1 queries
+        errors_stmt = select(RemediationQueue).where(
+            RemediationQueue.learner_id == learner_id, 
+            RemediationQueue.status == "PENDING"
+        )
+        result = await db.execute(errors_stmt)
+        errors = result.scalars().all()
+        
+        error_counts = {}
+        for e in errors:
+            if not e.topic: continue
+            # Also clean topic for errors if needed, or rely on exact match? 
+            # Ideally errors should also be grouped by clean topic.
+            t_key = e.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").strip()
+            error_counts[t_key] = error_counts.get(t_key, 0) + 1
+
+        for topic, topic_scores in topic_map.items():
+            if not topic_scores: continue
+            
+            # Sort by date asc (oldest first)
+            topic_scores.sort(key=lambda x: x.created_at)
+            
+            # Take last 5 scores
+            recent_scores = topic_scores[-5:]
+            
+            # Calculate Weighted Average
+            # Example: [50, 60, 70] -> (50*1 + 60*2 + 70*3) / (1+2+3)
+            total_weight = 0
+            weighted_sum = 0
+            
+            for i, s in enumerate(recent_scores):
+                weight = i + 1
+                # Percentage for this quiz
+                pct = (s.score / s.total_questions) * 100 if s.total_questions > 0 else 0
+                weighted_sum += pct * weight
+                total_weight += weight
+                
+            base_mastery = weighted_sum / total_weight if total_weight > 0 else 0
+            
+            # Apply penalty for pending errors
+            pending_errors = error_counts.get(topic, 0)
+            penalty = pending_errors * 3 # Reduced penalty from 5 to 3
+            
+            final_mastery = max(0, min(100, base_mastery - penalty))
+            
+            status = "LEARNING"
+            if final_mastery >= 80:
+                status = "MASTERED"
+            elif final_mastery >= 50:
+                status = "REVIEWING"
+                
+            # Safely get last activity
+            last_activity = topic_scores[-1].created_at if topic_scores else datetime.utcnow()
+            
+            # Find the latest revision for this topic to get synthesis and tips
+            latest_revision = None
+            try:
+                from app.modules.quiz.models import Revision
+                rev_stmt = select(Revision).where(
+                    Revision.learner_id == learner_id,
+                    Revision.topic == topic
+                ).order_by(Revision.created_at.desc()).limit(1)
+                rev_result = await db.execute(rev_stmt)
+                latest_revision = rev_result.scalar_one_or_none()
+            except Exception:
+                pass # Ignore revision fetch errors
+
+            mastery_list.append({
+                "topic": topic,
+                "mastery_score": int(final_mastery),
+                "quizzes_count": len(topic_scores),
+                "pending_errors": pending_errors,
+                "status": status,
+                "last_activity": last_activity,
+                "synthesis": latest_revision.synthesis if latest_revision else None,
+                "study_tips": latest_revision.study_tips if latest_revision else None
+            })
+            
+        # Sort by last activity
+        mastery_list.sort(key=lambda x: x['last_activity'], reverse=True)
+        
+        return mastery_list
+    except Exception as e:
+        import traceback
+        print(f"ERROR get_mastery_stats: {str(e)}\n{traceback.format_exc()}")
+        # Return empty list instead of 500 to keep dashboard alive
         return []
-
-    # 2. Group by Normalized Topic
-    # We want to merge "Maths" and "Maths (Remediation)" into "Maths"
-    # And we want to prioritize RECENT scores.
-    
-    topic_map = {}
-    
-    for s in scores:
-        # Normalize topic
-        clean_topic = s.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").strip()
-        
-        if clean_topic not in topic_map:
-            topic_map[clean_topic] = []
-        
-        topic_map[clean_topic].append(s)
-        
-    # 3. Calculate Mastery per Topic using Weighted Average of last 5 attempts
-    mastery_list = []
-    
-    # Pre-fetch errors to avoid N+1 queries
-    errors_stmt = select(RemediationQueue).where(
-        RemediationQueue.learner_id == learner_id, 
-        RemediationQueue.status == "PENDING"
-    )
-    result = await db.execute(errors_stmt)
-    errors = result.scalars().all()
-    
-    error_counts = {}
-    for e in errors:
-        # Also clean topic for errors if needed, or rely on exact match? 
-        # Ideally errors should also be grouped by clean topic.
-        t_key = e.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").strip()
-        error_counts[t_key] = error_counts.get(t_key, 0) + 1
-
-    for topic, topic_scores in topic_map.items():
-        # Sort by date asc (oldest first)
-        topic_scores.sort(key=lambda x: x.created_at)
-        
-        # Take last 5 scores
-        recent_scores = topic_scores[-5:]
-        
-        # Calculate Weighted Average
-        # Example: [50, 60, 70] -> (50*1 + 60*2 + 70*3) / (1+2+3)
-        total_weight = 0
-        weighted_sum = 0
-        
-        for i, s in enumerate(recent_scores):
-            weight = i + 1
-            # Percentage for this quiz
-            pct = (s.score / s.total_questions) * 100 if s.total_questions > 0 else 0
-            weighted_sum += pct * weight
-            total_weight += weight
-            
-        base_mastery = weighted_sum / total_weight if total_weight > 0 else 0
-        
-        # Apply penalty for pending errors
-        pending_errors = error_counts.get(topic, 0)
-        penalty = pending_errors * 3 # Reduced penalty from 5 to 3
-        
-        final_mastery = max(0, min(100, base_mastery - penalty))
-        
-        status = "LEARNING"
-        if final_mastery >= 80:
-            status = "MASTERED"
-        elif final_mastery >= 50:
-            status = "REVIEWING"
-            
-        last_activity = topic_scores[-1].created_at
-        
-        # Find the latest revision for this topic to get synthesis and tips
-        latest_revision = None
-        # topic_scores are already sorted by date asc, so let's find latest revision
-        # Actually, let's find the latest revision object directly.
-        # Revision might have a different topic name? No, normalization should match.
-        from app.modules.quiz.models import Revision
-        rev_stmt = select(Revision).where(
-            Revision.learner_id == learner_id,
-            Revision.topic == topic
-        ).order_by(Revision.created_at.desc()).limit(1)
-        rev_result = await db.execute(rev_stmt)
-        latest_revision = rev_result.scalar_one_or_none()
-
-        mastery_list.append({
-            "topic": topic,
-            "mastery_score": int(final_mastery),
-            "quizzes_count": len(topic_scores),
-            "pending_errors": pending_errors,
-            "status": status,
-            "last_activity": last_activity,
-            "synthesis": latest_revision.synthesis if latest_revision else None,
-            "study_tips": latest_revision.study_tips if latest_revision else None
-        })
-        
-    # Sort by last activity
-    mastery_list.sort(key=lambda x: x['last_activity'], reverse=True)
-    
-    return mastery_list
 
 @router.get("/stats/activity")
 async def get_activity_stats(
