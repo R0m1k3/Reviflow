@@ -1,6 +1,8 @@
 services:
   reviflow:
-    build: .
+    image: ghcr.io/r0m1k3/reviflow:latest
+    # build: . # Using pre-built image from GHCR
+    restart: always
     ports:
       - "8000:8000"
     environment:
