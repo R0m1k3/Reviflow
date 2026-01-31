@@ -19,7 +19,21 @@ async def log_requests(request: Request, call_next):
 
 @app.on_event("startup")
 async def on_startup():
-    await create_db_and_tables()
+    print("DEBUG: Startup initiated")
+    import os
+    print(f"DEBUG: Current Working Directory: {os.getcwd()}")
+    print(f"DEBUG: Directory Contents: {os.listdir('.')}")
+    print(f"DEBUG: Environment DATABASE_URL: {os.getenv('DATABASE_URL')}")
+    
+    try:
+        print("DEBUG: Attempting to create DB and tables...")
+        await create_db_and_tables()
+        print("DEBUG: DB creation successful.")
+    except Exception as e:
+        print(f"CRITICAL ERROR: Failed to connect to DB or create tables. Error: {e}")
+        import traceback
+        traceback.print_exc()
+
     # Debug: Check static files location
     static_path = os.path.join(os.path.dirname(__file__), "..", "static")
     print(f"Startup: Static dir check -> {os.path.abspath(static_path)} (Exists: {os.path.exists(static_path)})")
