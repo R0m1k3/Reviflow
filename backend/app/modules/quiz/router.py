@@ -529,10 +529,11 @@ async def generate_remediation_quiz(
         
         quiz_content = data["quiz"]
         
-        # Force topic to indicate remediation for reliable detection downstream
-        if "remedia" not in quiz_content.get("topic", "").lower():
+        # Force topic to indicate remediation/revision for reliable detection downstream
+        topic_lower = quiz_content.get("topic", "").lower()
+        if "remedia" not in topic_lower and "révision" not in topic_lower:
             original_topic = quiz_content.get("topic", "Révision")
-            quiz_content["topic"] = f"{original_topic} (Remediation)"
+            quiz_content["topic"] = f"{original_topic} (Révision)"
 
         # Inject revision_id if present so it persists through the quiz lifecycle
         if revision_id:
@@ -571,7 +572,7 @@ async def get_mastery_stats(
         for s in scores:
             if not s.topic: continue
             # Normalize topic
-            clean_topic = s.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").strip()
+            clean_topic = s.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
             
             if clean_topic not in topic_map:
                 topic_map[clean_topic] = []
@@ -594,7 +595,7 @@ async def get_mastery_stats(
             if not e.topic: continue
             # Also clean topic for errors if needed, or rely on exact match? 
             # Ideally errors should also be grouped by clean topic.
-            t_key = e.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").strip()
+            t_key = e.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
             error_counts[t_key] = error_counts.get(t_key, 0) + 1
 
         for topic, topic_scores in topic_map.items():
