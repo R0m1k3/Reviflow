@@ -4,7 +4,7 @@ services:
     # build: . # Using pre-built image from GHCR
     restart: always
     ports:
-      - "8000:8000"
+      - "8686:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://reviflow:reviflow@db:5432/reviflow
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
