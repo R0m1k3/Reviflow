@@ -102,6 +102,7 @@ export const LoginPage = () => {
                                     {isParentMode ? <Mail className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
                                 </div>
                                 <input
+                                    key={isParentMode ? "email-input" : "username-input"}
                                     id="identifier"
                                     type={isParentMode ? "email" : "text"}
                                     placeholder={isParentMode ? "michael@exemple.com" : "Nom d'apprenti"}
@@ -121,6 +122,7 @@ export const LoginPage = () => {
                                     <Lock className="h-5 w-5" />
                                 </div>
                                 <input
+                                    key={isParentMode ? "password-input" : "pin-input"}
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder={isParentMode ? "••••••••" : "••••"}
