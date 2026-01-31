@@ -4,7 +4,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
-RUN npm run build
+RUN mkdir -p /app/backend/static && npm run build
 
 # Stage 2: Setup Backend & Runtime
 FROM python:3.11-slim
