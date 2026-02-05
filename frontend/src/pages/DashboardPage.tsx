@@ -140,12 +140,12 @@ function BadgeGalleryModal({ isOpen, onClose, unlockedBadges }: { isOpen: boolea
                         initial={{ opacity: 0, scale: 0.95, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                        className="relative z-10 bg-white/95 rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col border border-white/20"
+                        className="relative z-10 bg-white/95 dark:bg-slate-900/95 rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col border border-white/20 dark:border-slate-700/50"
                     >
                         {/* Header */}
-                        <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-white/80 sticky top-0 z-20 backdrop-blur-sm">
+                        <div className="p-8 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-white/80 dark:bg-slate-900/80 sticky top-0 z-20 backdrop-blur-sm">
                             <div>
-                                <h3 className="text-3xl font-black text-gray-900 tracking-tight">Ma Collection 🏆</h3>
+                                <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Ma Collection 🏆</h3>
                                 <div className="mt-2 flex items-center gap-3">
                                     <div className="h-2 w-48 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
                                         <div
@@ -158,7 +158,7 @@ function BadgeGalleryModal({ isOpen, onClose, unlockedBadges }: { isOpen: boolea
                                     </span>
                                 </div>
                             </div>
-                            <button onClick={onClose} className="p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-all active:scale-95 text-gray-400">
+                            <button onClick={onClose} className="p-3 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-2xl transition-all active:scale-95 text-gray-400">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -256,11 +256,11 @@ function AvatarSelector({ isOpen, onClose }: { isOpen: boolean, onClose: () => v
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100"
+                        className="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-slate-700"
                     >
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold text-gray-900">Choisis ton Avatar</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Choisis ton Avatar</h3>
                                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -274,7 +274,7 @@ function AvatarSelector({ isOpen, onClose }: { isOpen: boolean, onClose: () => v
                                         key={seed}
                                         onClick={() => handleSelect(seed)}
                                         disabled={sending}
-                                        className="aspect-square flex items-center justify-center p-2 bg-gray-50 rounded-full hover:bg-indigo-50 hover:scale-110 active:scale-95 transition-all outline-none border-2 border-transparent hover:border-indigo-200"
+                                        className="aspect-square flex items-center justify-center p-2 bg-gray-50 dark:bg-slate-700 rounded-full hover:bg-indigo-50 dark:hover:bg-slate-600 hover:scale-110 active:scale-95 transition-all outline-none border-2 border-transparent hover:border-indigo-200"
                                     >
                                         <img src={getAvatarUrl(seed)} alt={seed} className="w-full h-full object-contain" />
                                     </button>
@@ -296,9 +296,9 @@ function AvatarDisplay({ url, size = "w-9 h-9", fontSize = "text-xl" }: { url: s
     const isEmoji = !url.startsWith('http') && !url.startsWith('data:') && !url.includes('/');
 
     return (
-        <div className={`${size} rounded-full bg-white border border-gray-200 overflow-hidden flex items-center justify-center shadow-sm`}>
+        <div className={`${size} rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 overflow-hidden flex items-center justify-center shadow-sm`}>
             {isEmoji ? (
-                <span className={fontSize}>{url}</span>
+                <span className={`${fontSize} dark:text-white`}>{url}</span>
             ) : (
                 <img src={url} alt="Avatar" className="w-full h-full object-cover" />
             )}
@@ -361,7 +361,7 @@ export default function DashboardPage() {
                     <div className="flex justify-between h-16">
                         <div className="flex items-center gap-6">
                             <Link to="/dashboard" className="flex items-center gap-3">
-                                <img src="/logo.png" alt="Reviflow" className="w-8 h-8 rounded-lg shadow-sm object-cover bg-white" />
+                                <img src="/logo.png" alt="Reviflow" className="w-8 h-8 rounded-lg shadow-sm object-cover bg-white dark:bg-slate-200" />
                                 <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Reviflow</span>
                             </Link>
 
@@ -492,14 +492,14 @@ export default function DashboardPage() {
                         <div className="lg:col-span-8 space-y-6">
 
                             {/* Badges - Compact */}
-                            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm relative overflow-hidden">
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
                                 {/* Background Decorations */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
                                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/20 rounded-full blur-2xl -ml-5 -mb-5"></div>
 
                                 <div className="relative z-10">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="font-bold text-gray-900">Succès Récents</h3>
+                                        <h3 className="font-bold text-gray-900 dark:text-white">Succès Récents</h3>
                                         <button
                                             onClick={() => setIsBadgeGalleryOpen(true)}
                                             className="text-[10px] font-black text-indigo-500 hover:text-indigo-700 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded-md transition-colors"
@@ -512,7 +512,7 @@ export default function DashboardPage() {
                                             recentBadges.map((badge) => {
                                                 const badgeDef = ALL_BADGES.find(b => b.code === badge.badge_code);
                                                 return (
-                                                    <div key={badge.badge_code} className="flex-shrink-0 flex items-center gap-3 px-4 py-2 rounded-full border border-indigo-100 bg-white text-indigo-900 shadow-md hover:scale-105 transition-all cursor-pointer ring-1 ring-indigo-50">
+                                                    <div key={badge.badge_code} className="flex-shrink-0 flex items-center gap-3 px-4 py-2 rounded-full border border-indigo-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-indigo-900 dark:text-indigo-100 shadow-md hover:scale-105 transition-all cursor-pointer ring-1 ring-indigo-50 dark:ring-slate-600">
                                                         <span className="text-xl drop-shadow-sm">{badgeDef?.icon || '🏆'}</span>
                                                         <div className="flex flex-col">
                                                             <span className="text-[10px] font-black leading-tight uppercase tracking-tight">{badgeDef?.label || badge.badge_code}</span>
@@ -531,14 +531,14 @@ export default function DashboardPage() {
 
                             <MasteryWidget />
 
-                            <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm min-h-[300px] relative overflow-hidden">
+                            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm min-h-[300px] relative overflow-hidden">
                                 {/* Background Decorations */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
                                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/20 rounded-full blur-2xl -ml-5 -mb-5"></div>
 
                                 <div className="relative z-10">
                                     <div className="flex items-center justify-between mb-6">
-                                        <h3 className="font-bold text-gray-900">Activités Récentes</h3>
+                                        <h3 className="font-bold text-gray-900 dark:text-white">Activités Récentes</h3>
                                     </div>
                                     <ActivityTimeline learnerId={activeLearner?.id} />
                                 </div>

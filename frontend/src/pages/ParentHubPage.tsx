@@ -212,8 +212,8 @@ export const ParentHubPage = () => {
                     ))}
 
                     {learnerProfiles.length === 0 && (
-                        <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border-4 border-dashed border-slate-100">
-                            <div className="p-6 bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <div className="col-span-full py-20 text-center bg-slate-50/50 dark:bg-slate-800/50 rounded-[3rem] border-4 border-dashed border-slate-100 dark:border-slate-700">
+                            <div className="p-6 bg-white dark:bg-slate-800 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-lg">
                                 <Users className="h-12 w-12 text-slate-200" />
                             </div>
                             <p className="text-slate-400 text-lg font-bold">Aucun compte apprenti créé pour le moment.</p>
@@ -230,7 +230,7 @@ export const ParentHubPage = () => {
                 {/* Create Profile Modal */}
                 {isCreating && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative animate-in zoom-in-95 duration-300">
+                        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 relative animate-in zoom-in-95 duration-300 border border-transparent dark:border-slate-800">
                             <button
                                 onClick={() => setIsCreating(false)}
                                 className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -238,45 +238,45 @@ export const ParentHubPage = () => {
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
 
-                            <h2 className="text-3xl font-black text-slate-900 mb-8 flex items-center gap-3">
-                                <div className="p-2 bg-indigo-50 rounded-xl">
-                                    <Plus className="w-6 h-6 text-indigo-600" />
+                            <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                                    <Plus className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 Nouvel Apprenti
                             </h2>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2 ml-1 uppercase tracking-wider">Prénom de l'enfant</label>
+                                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1 uppercase tracking-wider">Prénom de l'enfant</label>
                                     <input
                                         type="text"
                                         value={newProfileName}
                                         onChange={(e) => setNewProfileName(e.target.value)}
-                                        className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white transition-all font-bold outline-none text-slate-900 placeholder:text-slate-300"
+                                        className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-700 transition-all font-bold outline-none text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                         placeholder="Ex: Léo"
                                         autoFocus
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2 ml-1 uppercase tracking-wider">Identifiant (Login)</label>
+                                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1 uppercase tracking-wider">Identifiant (Login)</label>
                                     <input
                                         type="text"
                                         value={newProfileUsername}
                                         onChange={(e) => setNewProfileUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
-                                        className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white transition-all font-bold outline-none text-slate-900 placeholder:text-slate-300"
+                                        className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-700 transition-all font-bold outline-none text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600"
                                         placeholder="leo2026"
                                     />
                                     <p className="text-[10px] text-slate-400 mt-2 ml-1 font-bold uppercase tracking-widest">Utilisé pour se connecter sans email</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2 ml-1 uppercase tracking-wider">Code PIN ou Mot de passe (4+ car.)</label>
+                                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 ml-1 uppercase tracking-wider">Code PIN ou Mot de passe (4+ car.)</label>
                                     <input
                                         type="text"
                                         value={newProfilePin}
                                         onChange={(e) => setNewProfilePin(e.target.value)}
-                                        className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white transition-all font-bold text-center text-3xl tracking-widest outline-none text-indigo-600"
+                                        className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-700 transition-all font-bold text-center text-3xl tracking-widest outline-none text-indigo-600 dark:text-indigo-400"
                                         placeholder="1234"
                                     />
                                 </div>
@@ -296,7 +296,7 @@ export const ParentHubPage = () => {
                 {/* Stats Modal */}
                 {selectedChildId && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl p-8 relative animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+                        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl p-8 relative animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto border border-transparent dark:border-slate-800">
                             <button
                                 onClick={() => setSelectedChildId(null)}
                                 className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -304,7 +304,7 @@ export const ParentHubPage = () => {
                                 <X className="w-6 h-6" />
                             </button>
 
-                            <h2 className="text-3xl font-black text-slate-900 mb-8 flex items-center gap-3">
+                            <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-8 flex items-center gap-3">
                                 📊 Progression
                             </h2>
 
@@ -317,7 +317,7 @@ export const ParentHubPage = () => {
                             <div className="mt-8 text-center">
                                 <button
                                     onClick={() => setSelectedChildId(null)}
-                                    className="text-slate-500 font-bold hover:text-slate-800"
+                                    className="text-slate-500 font-bold hover:text-slate-800 dark:hover:text-slate-300"
                                 >
                                     Fermer
                                 </button>
