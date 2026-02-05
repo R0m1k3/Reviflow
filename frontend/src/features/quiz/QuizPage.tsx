@@ -246,7 +246,7 @@ export function QuizPage() {
     };
 
     return (
-        <div className={`min-h-screen bg-cream py-8 px-4 sm:px-6 lg:px-8 ${isDyslexic ? 'font-dyslexic' : 'font-sans'}`}>
+        <div className={`min-h-screen bg-cream dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8 ${isDyslexic ? 'font-dyslexic' : 'font-sans'} transition-colors duration-300`}>
             <div className="max-w-screen-sm mx-auto relative content-center">
 
                 {/* Pause Button */}
@@ -255,44 +255,44 @@ export function QuizPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handlePause}
-                        className="absolute -top-2 right-0 text-slate-400 hover:text-indigo-600 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all border border-slate-100 flex items-center gap-2"
+                        className="absolute -top-2 right-0 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-sm bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-700 flex items-center gap-2"
                     >
                         <span>⏸ Pause & Quitter</span>
                     </motion.button>
                 )}
 
                 {loading && (
-                    <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-xl p-8 animate-pulse">
+                    <div className="w-full max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 animate-pulse">
                         <div className="flex justify-between items-center mb-8">
-                            <Skeleton className="h-4 w-24 bg-indigo-50" />
-                            <Skeleton className="h-4 w-32 bg-indigo-50" />
+                            <Skeleton className="h-4 w-24 bg-indigo-50 dark:bg-indigo-900/30" />
+                            <Skeleton className="h-4 w-32 bg-indigo-50 dark:bg-indigo-900/30" />
                         </div>
 
-                        <Skeleton className="h-8 w-3/4 mb-4 bg-gray-200" />
-                        <Skeleton className="h-8 w-1/2 mb-12 bg-gray-200" />
+                        <Skeleton className="h-8 w-3/4 mb-4 bg-gray-200 dark:bg-slate-700" />
+                        <Skeleton className="h-8 w-1/2 mb-12 bg-gray-200 dark:bg-slate-700" />
 
                         <div className="space-y-4">
                             {[1, 2, 3, 4].map((i) => (
-                                <Skeleton key={i} className="h-16 w-full rounded-xl bg-gray-100" />
+                                <Skeleton key={i} className="h-16 w-full rounded-xl bg-gray-100 dark:bg-slate-700" />
                             ))}
                         </div>
 
                         <div className="mt-8 text-center">
-                            <p className="text-indigo-600 font-medium animate-pulse">Génération de votre quiz en cours...</p>
+                            <p className="text-indigo-600 dark:text-indigo-400 font-medium animate-pulse">Génération de votre quiz en cours...</p>
                         </div>
                     </div>
                 )}
 
                 {error && (
-                    <div className="text-center text-red-600 bg-red-50 p-8 rounded-[2.5rem] mt-10 border-2 border-red-100 shadow-xl shadow-red-50 animate-in zoom-in duration-300">
+                    <div className="text-center text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-8 rounded-[2.5rem] mt-10 border-2 border-red-100 dark:border-red-900/30 shadow-xl shadow-red-50 dark:shadow-none animate-in zoom-in duration-300">
                         <div className="text-5xl mb-4">⚠️</div>
                         <h3 className="text-2xl font-black mb-2">Une erreur est survenue</h3>
-                        <p className="font-medium text-red-500 opacity-80">{error}</p>
+                        <p className="font-medium text-red-500 dark:text-red-300 opacity-80">{error}</p>
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => navigate('/dashboard')}
-                            className="mt-8 px-8 py-4 bg-white border-2 border-red-100 text-red-600 font-black rounded-2xl hover:bg-red-50 transition-all shadow-lg shadow-red-50 flex items-center justify-center gap-3"
+                            className="mt-8 px-8 py-4 bg-white dark:bg-slate-800 border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-black rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-lg shadow-red-50 dark:shadow-none flex items-center justify-center gap-3"
                         >
                             Retour au tableau de bord
                         </motion.button>

@@ -70,21 +70,21 @@ export const HistoryPage: React.FC = () => {
     const getSubjectStyle = (subject: string) => SUBJECT_STYLES[subject] || SUBJECT_STYLES['default'];
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 pb-20">
+        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-900 font-sans text-gray-900 dark:text-gray-100 pb-20 transition-colors duration-300">
             {/* Nav */}
-            <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
+            <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => navigate('/dashboard')}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-slate-100 text-slate-500 font-bold rounded-xl hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm"
+                            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold rounded-xl hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-100 dark:hover:border-indigo-900 transition-all shadow-sm"
                         >
                             <ChevronLeft className="w-5 h-5" />
                             <span>Retour</span>
                         </motion.button>
-                        <h1 className="text-xl font-black tracking-tight text-gray-900">Mes Cours</h1>
+                        <h1 className="text-xl font-black tracking-tight text-gray-900 dark:text-white">Mes Cours</h1>
                         <div className="w-20"></div> {/* spacer */}
                     </div>
                 </div>
@@ -97,7 +97,7 @@ export const HistoryPage: React.FC = () => {
                     <input
                         type="text"
                         placeholder="Rechercher un cours ou une matière..."
-                        className="w-full pl-12 pr-6 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 transition-all outline-none font-medium"
+                        className="w-full pl-12 pr-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-50 dark:focus:ring-indigo-900/30 focus:border-indigo-200 dark:focus:border-indigo-700 text-gray-900 dark:text-white placeholder-slate-400 transition-all outline-none font-medium"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -118,9 +118,9 @@ export const HistoryPage: React.FC = () => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     onClick={() => navigate(`/play/${rev.id}`)}
-                                    className="group bg-white border border-slate-200 p-5 rounded-2xl hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/50 transition-all cursor-pointer flex items-center gap-6"
+                                    className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-50/50 dark:hover:shadow-none transition-all cursor-pointer flex items-center gap-6"
                                 >
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${style.bg} ${style.color}`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${style.bg} ${style.color} dark:bg-opacity-20`}>
                                         {style.icon}
                                     </div>
 
@@ -128,15 +128,15 @@ export const HistoryPage: React.FC = () => {
                                         <div className={`text-[11px] font-black uppercase tracking-widest mb-1 ${style.color}`}>
                                             {rev.subject || 'Général'}
                                         </div>
-                                        <h3 className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors truncate">
+                                        <h3 className="text-lg font-bold text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                                             {rev.topic}
                                         </h3>
                                         <div className="flex items-center gap-3 mt-1.5">
-                                            <div className="flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md">
+                                            <div className="flex items-center gap-1 text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
                                                 <Calendar className="w-3 h-3" />
                                                 {new Date(rev.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                                             </div>
-                                            <span className="text-slate-300">•</span>
+                                            <span className="text-slate-300 dark:text-slate-600">•</span>
                                             <div className="text-xs font-black text-indigo-400 uppercase tracking-tight">
                                                 Quizz {rev.current_series}/{rev.total_series}
                                             </div>
@@ -145,11 +145,11 @@ export const HistoryPage: React.FC = () => {
 
                                     <div className="flex items-center gap-3">
                                         {rev.status === 'COMPLETED' && (
-                                            <span className="hidden sm:flex px-3 py-1.5 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-green-100 items-center gap-2">
+                                            <span className="hidden sm:flex px-3 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-green-100 dark:border-green-900/30 items-center gap-2">
                                                 <span>✅</span> Terminé
                                             </span>
                                         )}
-                                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                        <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-300 dark:text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                                             <ArrowRight className="w-5 h-5" />
                                         </div>
                                     </div>
@@ -158,11 +158,11 @@ export const HistoryPage: React.FC = () => {
                         })}
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-200">
+                    <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-700">
                         <div className="text-4xl mb-4">🔍</div>
-                        <h3 className="text-xl font-bold text-slate-800">Aucun cours trouvé</h3>
-                        <p className="text-slate-500 mt-2">Essaie une autre recherche ou crée un nouveau cours !</p>
-                        <Link to="/new" className="mt-6 inline-flex px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100">
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Aucun cours trouvé</h3>
+                        <p className="text-slate-500 dark:text-slate-400 mt-2">Essaie une autre recherche ou crée un nouveau cours !</p>
+                        <Link to="/new" className="mt-6 inline-flex px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 dark:shadow-none">
                             Créer un cours
                         </Link>
                     </div>
