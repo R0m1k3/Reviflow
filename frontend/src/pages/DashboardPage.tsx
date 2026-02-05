@@ -375,52 +375,53 @@ export default function DashboardPage() {
                                     </Link>
                                 )}
                             </div>
+                        </div>
 
-                            {/* Center: Date/Time */}
-                            <div className="hidden lg:flex flex-col items-center justify-center">
-                                <span className="text-sm font-black text-gray-900 dark:text-gray-100 capitalize">
-                                    {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                </span>
-                                <span className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded-full">
-                                    {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            </div>
+                        {/* Center: Date/Time */}
+                        <div className="hidden lg:flex flex-col items-center justify-center">
+                            <span className="text-sm font-black text-gray-900 dark:text-gray-100 capitalize">
+                                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                            </span>
+                            <span className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded-full">
+                                {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                        </div>
 
-                            <div className="flex items-center gap-4">
-                                {/* Theme Toggle */}
-                                <ThemeToggle />
+                        <div className="flex items-center gap-4">
+                            {/* Theme Toggle */}
+                            <ThemeToggle />
 
-                                {/* Dyslexia Toggle */}
-                                <DyslexiaToggle />
+                            {/* Dyslexia Toggle */}
+                            <DyslexiaToggle />
 
-                                <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
+                            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
-                                {/* Profile Info */}
-                                <div className="flex items-center gap-3">
-                                    <div className="hidden md:block text-right">
-                                        <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">
-                                            {activeLearner?.first_name || user?.first_name}
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => user?.role === 'learner' && setIsAvatarPickerOpen(true)}
-                                        className="outline-none"
-                                        disabled={user?.role !== 'learner'}
-                                    >
-                                        <AvatarDisplay url={currentAvatarUrl || null} />
-                                    </button>
+                            {/* Profile Info */}
+                            <div className="flex items-center gap-3">
+                                <div className="hidden md:block text-right">
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">
+                                        {activeLearner?.first_name || user?.first_name}
+                                    </p>
                                 </div>
-
                                 <button
-                                    onClick={logout}
-                                    className="p-2 text-gray-400 hover:text-red-900 transition-colors"
-                                    title="Se déconnecter"
+                                    onClick={() => user?.role === 'learner' && setIsAvatarPickerOpen(true)}
+                                    className="outline-none"
+                                    disabled={user?.role !== 'learner'}
                                 >
-                                    <LogOut className="w-4 h-4 ml-1" />
+                                    <AvatarDisplay url={currentAvatarUrl || null} />
                                 </button>
                             </div>
+
+                            <button
+                                onClick={logout}
+                                className="p-2 text-gray-400 hover:text-red-900 transition-colors"
+                                title="Se déconnecter"
+                            >
+                                <LogOut className="w-4 h-4 ml-1" />
+                            </button>
                         </div>
                     </div>
+                </div>
             </nav>
 
             {/* Main Content */}
