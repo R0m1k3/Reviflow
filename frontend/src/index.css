@@ -11,16 +11,32 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Theme Tokens */
+  --bg-primary: #FDFCF8;
+  --bg-secondary: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --border-color: #E2E8F0;
+}
+
+.dark {
+  --bg-primary: #0F172A; /* slate-900 */
+  --bg-secondary: #020617; /* slate-950 */
+  --bg-card: #1E293B; /* slate-800 */
+  --text-primary: #F1F5F9; /* slate-100 */
+  --text-secondary: #94A3B8; /* slate-400 */
+  --border-color: #334155; /* slate-700 */
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #FDFCF8;
-  /* cream */
-  color: #1E293B;
-  /* slate-800 */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @font-face {

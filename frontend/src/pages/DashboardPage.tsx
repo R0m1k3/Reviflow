@@ -9,6 +9,7 @@ import { RecentRevisionsWidget } from '../features/dashboard/RecentRevisionsWidg
 import { LogOut, Flame } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 // --- Avatar Configuration (Original Fun-Emoji Style) ---
 const AVATAR_SEEDS = [
@@ -347,7 +348,7 @@ export default function DashboardPage() {
     const currentAvatarUrl = activeLearner?.avatar_url;
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-gray-900 overflow-x-hidden">
+        <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-900 flex flex-col font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-x-hidden">
             <AvatarSelector isOpen={isAvatarPickerOpen} onClose={() => setIsAvatarPickerOpen(false)} />
             <BadgeGalleryModal
                 isOpen={isBadgeGalleryOpen}
@@ -355,71 +356,76 @@ export default function DashboardPage() {
                 unlockedBadges={unlockedBadgeCodes}
             />
             {/* Navigation */}
-            <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
+            <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center gap-6">
                             <Link to="/dashboard" className="flex items-center gap-3">
                                 <img src="/logo.png" alt="Reviflow" className="w-8 h-8 rounded-lg shadow-sm object-cover bg-white" />
-                                <span className="text-lg font-bold tracking-tight text-gray-900">Reviflow</span>
+                                <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Reviflow</span>
                             </Link>
 
                             <div className="hidden sm:flex items-center space-x-1">
-                                <Link to="/dashboard" className="px-3 py-2 text-gray-900 bg-gray-100/50 rounded-md text-sm font-medium">
+                                <Link to="/dashboard" className="px-3 py-2 text-gray-900 dark:text-white bg-gray-100/50 dark:bg-slate-800/50 rounded-md text-sm font-medium">
                                     Tableau de bord
                                 </Link>
                                 {user?.role === 'parent' && (
                                     <>
-                                        <Link to="/parent-hub" className="px-3 py-2 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-md text-sm font-medium transition-colors">
-                                            Espace Parent
-                                        </Link>
-                                    </>
-                                )}
+                                        {user?.role === 'parent' && (
+                                            <>
+                                                <Link to="/parent-hub" className="px-3 py-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md text-sm font-medium transition-colors">
+                                                    Espace Parent
+                                                </Link>
+                                            </>
+                                        )}
+                                    </div>
                             </div>
-                        </div>
 
-                        {/* Center: Date/Time */}
-                        <div className="hidden lg:flex flex-col items-center justify-center">
-                            <span className="text-sm font-black text-gray-900 capitalize">
-                                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                            </span>
-                            <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
-                                {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                        </div>
+                            {/* Center: Date/Time */}
+                            <div className="hidden lg:flex flex-col items-center justify-center">
+                                <span className="text-sm font-black text-gray-900 dark:text-gray-100 capitalize">
+                                    {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                </span>
+                                <span className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-0.5 rounded-full">
+                                    {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </div>
 
-                        <div className="flex items-center gap-4">
-                            {/* Dyslexia Toggle */}
-                            <DyslexiaToggle />
+                            <div className="flex items-center gap-4">
+                                {/* Theme Toggle */}
+                                <ThemeToggle />
 
-                            <div className="h-6 w-px bg-gray-200 mx-1"></div>
+                                {/* Dyslexia Toggle */}
+                                <DyslexiaToggle />
 
-                            {/* Profile Info */}
-                            <div className="flex items-center gap-3">
-                                <div className="hidden md:block text-right">
-                                    <p className="text-sm font-bold text-gray-900 leading-none">
-                                        {activeLearner?.first_name || user?.first_name}
-                                    </p>
+                                <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
+
+                                {/* Profile Info */}
+                                <div className="flex items-center gap-3">
+                                    <div className="hidden md:block text-right">
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">
+                                            {activeLearner?.first_name || user?.first_name}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => user?.role === 'learner' && setIsAvatarPickerOpen(true)}
+                                        className="outline-none"
+                                        disabled={user?.role !== 'learner'}
+                                    >
+                                        <AvatarDisplay url={currentAvatarUrl || null} />
+                                    </button>
                                 </div>
+
                                 <button
-                                    onClick={() => user?.role === 'learner' && setIsAvatarPickerOpen(true)}
-                                    className="outline-none"
-                                    disabled={user?.role !== 'learner'}
+                                    onClick={logout}
+                                    className="p-2 text-gray-400 hover:text-red-900 transition-colors"
+                                    title="Se déconnecter"
                                 >
-                                    <AvatarDisplay url={currentAvatarUrl || null} />
+                                    <LogOut className="w-4 h-4 ml-1" />
                                 </button>
                             </div>
-
-                            <button
-                                onClick={logout}
-                                className="p-2 text-gray-400 hover:text-red-900 transition-colors"
-                                title="Se déconnecter"
-                            >
-                                <LogOut className="w-4 h-4 ml-1" />
-                            </button>
                         </div>
                     </div>
-                </div>
             </nav>
 
             {/* Main Content */}
@@ -431,7 +437,7 @@ export default function DashboardPage() {
                         <div>
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {activeLearner && (activeLearner.streak_current || 0) > 0 && (
-                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-orange-50 border border-orange-100 rounded-full text-orange-700">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-800 rounded-full text-orange-700 dark:text-orange-400">
                                         <Flame className="w-3 h-3 fill-orange-500 text-orange-500" />
                                         <span className="text-[10px] font-bold uppercase tracking-wide">
                                             {activeLearner.streak_current} jours
@@ -439,10 +445,10 @@ export default function DashboardPage() {
                                     </div>
                                 )}
                             </div>
-                            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                                 Bonjour {activeLearner?.first_name}.
                             </h2>
-                            <p className="text-gray-500 mt-1">Prêt à avancer sur tes objectifs ?</p>
+                            <p className="text-gray-500 dark:text-gray-400 mt-1">Prêt à avancer sur tes objectifs ?</p>
                         </div>
 
                         <div className="flex gap-3">

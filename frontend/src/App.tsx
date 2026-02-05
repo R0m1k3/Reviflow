@@ -14,6 +14,7 @@ import { ParentalGate } from './features/auth/ParentalGate';
 import { ProfileSelectionPage } from './features/auth/ProfileSelectionPage';
 import { ParentHubPage } from './pages/ParentHubPage';
 import { HistoryPage } from './features/quiz/HistoryPage';
+import { useThemeEffect } from './stores/useTheme';
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,8 @@ function ParentalProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  useThemeEffect();
+
   return (
     <BrowserRouter>
       <Routes>

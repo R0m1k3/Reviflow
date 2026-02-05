@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { MasteryWidget } from '../features/dashboard/MasteryWidget';
 import { ActivityTimeline } from '../features/dashboard/ActivityTimeline';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const ParentHubPage = () => {
     const [isCreating, setIsCreating] = useState(false);
@@ -70,9 +71,9 @@ export const ParentHubPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#FDFCF8] flex flex-col">
+        <div className="min-h-screen bg-[#FDFCF8] dark:bg-slate-900 flex flex-col transition-colors duration-300">
             {/* Navigation */}
-            <nav className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm/5">
+            <nav className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 sticky top-0 z-40 shadow-sm/5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
@@ -82,7 +83,7 @@ export const ParentHubPage = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                     </svg>
                                 </div>
-                                <span className="text-xl font-black tracking-tight text-gray-900">Reviflow</span>
+                                <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">Reviflow</span>
                             </Link>
 
                             <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
@@ -90,7 +91,7 @@ export const ParentHubPage = () => {
                                     <Users className="w-4 h-4" />
                                     Espace Parent
                                 </Link>
-                                <Link to="/settings" className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-50 rounded-lg text-sm font-medium transition-all">
+                                <Link to="/settings" className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg text-sm font-medium transition-all">
                                     <SettingsIcon className="w-4 h-4" />
                                     Paramètres
                                 </Link>
@@ -98,9 +99,12 @@ export const ParentHubPage = () => {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-3 pl-4 border-l border-gray-100">
+                            {/* Theme Toggle */}
+                            <ThemeToggle />
+
+                            <div className="flex items-center gap-3 pl-4 border-l border-gray-100 dark:border-gray-800">
                                 <div className="text-right">
-                                    <p className="text-sm font-bold text-gray-900 leading-none mb-1">{user?.first_name || 'Parent'}</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-none mb-1">{user?.first_name || 'Parent'}</p>
                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Administrateur</p>
                                 </div>
                             </div>
@@ -117,50 +121,50 @@ export const ParentHubPage = () => {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
                 <header className="mb-10">
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Bonjour, {user?.first_name || 'Parent'} ! 👋</h1>
-                    <p className="text-slate-500 mt-2 text-lg font-medium">Suivez les progrès de vos apprentis en toute sérénité.</p>
+                    <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Bonjour, {user?.first_name || 'Parent'} ! 👋</h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg font-medium">Suivez les progrès de vos apprentis en toute sérénité.</p>
                 </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-50">
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-50 dark:border-slate-700">
                         <div className="flex items-center space-x-4">
                             <div className="p-4 bg-indigo-50 rounded-2xl text-indigo-600">
                                 <Users className="h-6 w-6" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Apprentis</p>
-                                <p className="text-3xl font-black text-slate-900">{learnerProfiles.length}</p>
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">{learnerProfiles.length}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-50">
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-50 dark:border-slate-700">
                         <div className="flex items-center space-x-4">
                             <div className="p-4 bg-amber-50 rounded-2xl text-amber-600">
                                 <TrendingUp className="h-6 w-6" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Jetons AI</p>
-                                <p className="text-3xl font-black text-slate-900">{stats.total_tokens.toLocaleString()}</p>
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">{stats.total_tokens.toLocaleString()}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-50">
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-50 dark:border-slate-700">
                         <div className="flex items-center space-x-4">
                             <div className="p-4 bg-emerald-50 rounded-2xl text-emerald-600">
                                 <div className="h-6 w-6 font-black flex items-center justify-center">€</div>
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Coût estimé</p>
-                                <p className="text-3xl font-black text-slate-900">{stats.total_cost.toFixed(2)}</p>
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">{stats.total_cost.toFixed(2)}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight border-b-4 border-indigo-100 pb-1">Mes Apprentis</h2>
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight border-b-4 border-indigo-100 dark:border-indigo-900 pb-1">Mes Apprentis</h2>
                     <button
                         onClick={() => setIsCreating(true)}
                         className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 hover:-translate-y-1 active:scale-95"
@@ -172,7 +176,7 @@ export const ParentHubPage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {learnerProfiles.map(child => (
-                        <div key={child.id} className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 hover:shadow-2xl hover:shadow-indigo-100 transition-all group">
+                        <div key={child.id} className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-50 dark:border-slate-700 hover:shadow-2xl hover:shadow-indigo-100 dark:hover:shadow-indigo-900/20 transition-all group">
                             <div className="flex items-center space-x-5 mb-6">
                                 <div className="h-16 w-16 rounded-[1.5rem] bg-indigo-50 border-2 border-white shadow-md flex items-center justify-center text-2xl font-black text-indigo-400 overflow-hidden group-hover:scale-110 transition-transform">
                                     {child.avatar_url && child.avatar_url.startsWith('http') ? (
@@ -182,11 +186,11 @@ export const ParentHubPage = () => {
                                     )}
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black text-slate-900">{child.first_name}</h3>
+                                    <h3 className="text-xl font-black text-slate-900 dark:text-white">{child.first_name}</h3>
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Niveau {child.level || 1}</p>
                                 </div>
                             </div>
-                            <div className="space-y-4 pt-6 border-t border-slate-100">
+                            <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-700">
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm font-medium text-slate-500">Série actuelle</span>
                                     <span className="px-3 py-1 bg-orange-50 text-orange-600 text-xs font-black rounded-full border border-orange-100">
@@ -195,7 +199,7 @@ export const ParentHubPage = () => {
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-slate-500 font-medium">Expérience</span>
-                                    <span className="font-bold text-slate-900">{child.xp || 0} XP</span>
+                                    <span className="font-bold text-slate-900 dark:text-slate-200">{child.xp || 0} XP</span>
                                 </div>
                                 <button
                                     onClick={() => setSelectedChildId(child.id)}
@@ -323,7 +327,7 @@ export const ParentHubPage = () => {
                 )}
             </main>
 
-            <footer className="mt-auto py-12 border-t border-slate-100 bg-white">
+            <footer className="mt-auto py-12 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-slate-200 rounded-lg"></div>
