@@ -37,6 +37,7 @@ export function QuizPage() {
     const [quizData, setQuizData] = useState<QuizResponse | null>(null);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
+    const [isValidated, setIsValidated] = useState(false); // New state for validation
     const [score, setScore] = useState(0);
     const [answers, setAnswers] = useState<any[]>([]); // Track details
     const [isFinished, setIsFinished] = useState(false);
@@ -129,19 +130,26 @@ export function QuizPage() {
         if (currentQuestionIndex < (quizData?.questions.length || 0) - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
             setSelectedOption(null);
+            setIsValidated(false); // Reset validation for next question
         } else {
             setIsFinished(true);
         }
     };
 
+    // Change: Selected option just updates state, doesn't lock yet
     const handleOptionSelect = (index: number) => {
-        if (selectedOption !== null) return; // Prevent changing answer
+        if (isValidated) return; // Prevent changing answer if already validated
         setSelectedOption(index);
+    };
 
-        if (!quizData) return;
+    // New: Validate the answer
+    const handleValidate = () => {
+        if (selectedOption === null || isValidated || !quizData) return;
+
+        setIsValidated(true);
 
         const currentQ = quizData.questions[currentQuestionIndex];
-        const isCorrect = index === currentQ.correct_answer;
+        const isCorrect = selectedOption === currentQ.correct_answer;
 
         if (isCorrect) {
             setScore(prev => prev + 1);
@@ -150,7 +158,7 @@ export function QuizPage() {
         // Record answer details
         setAnswers(prev => [...prev, {
             question: currentQ.question,
-            user_answer: currentQ.options[index],
+            user_answer: currentQ.options[selectedOption],
             correct_answer: currentQ.options[currentQ.correct_answer],
             is_correct: isCorrect,
             original_content: null
@@ -311,13 +319,25 @@ export function QuizPage() {
                             currentStep={currentQuestionIndex + 1}
                             totalSteps={quizData.questions.length}
                             explanation={quizData.questions[currentQuestionIndex].explanation}
+                            isValidated={isValidated} // Pass validation state
                         />
 
-                        {/* NEXT BUTTON */}
-                        {selectedOption !== null && (
+                        {/* VALIDATE BUTTON */}
+                        {selectedOption !== null && !isValidated && (
+                            <button
+                                onClick={handleValidate}
+                                className="mt-8 bg-indigo-600 text-white font-black text-lg py-4 px-12 rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 hover:scale-105 hover:shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-3 group"
+                            >
+                                <span>Valider la réponse</span>
+                                <span className="text-2xl group-hover:scale-110 transition-transform">✓</span>
+                            </button>
+                        )}
+
+                        {/* NEXT BUTTON (Only show after validation) */}
+                        {isValidated && (
                             <button
                                 onClick={handleNext}
-                                className="mt-8 bg-indigo-600 text-white font-black text-lg py-4 px-12 rounded-2xl shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 hover:shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-3 group"
+                                className="mt-8 bg-indigo-600 text-white font-black text-lg py-4 px-12 rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 hover:scale-105 hover:shadow-2xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 flex items-center gap-3 group"
                             >
                                 <span>Question Suivante</span>
                                 <span className="text-2xl group-hover:translate-x-1 transition-transform">➜</span>
