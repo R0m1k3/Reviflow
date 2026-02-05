@@ -370,15 +370,10 @@ export default function DashboardPage() {
                                     Tableau de bord
                                 </Link>
                                 {user?.role === 'parent' && (
-                                    <>
-                                        {user?.role === 'parent' && (
-                                            <>
-                                                <Link to="/parent-hub" className="px-3 py-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md text-sm font-medium transition-colors">
-                                                    Espace Parent
-                                                </Link>
-                                            </>
-                                        )}
-                                    </div>
+                                    <Link to="/parent-hub" className="px-3 py-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md text-sm font-medium transition-colors">
+                                        Espace Parent
+                                    </Link>
+                                )}
                             </div>
 
                             {/* Center: Date/Time */}
