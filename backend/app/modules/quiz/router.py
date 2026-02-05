@@ -189,9 +189,9 @@ async def save_score(
             
             # --- Remediation Logic ---
             # 1. If this IS a remediation quiz (detected by topic), close old pending errors
-            # Robust check: case insensitive, check for 'remedia'
+            # Robust check: case insensitive, check for 'remedia' or 'correct'
             topic_lower = score_data.topic.lower()
-            if "remedia" in topic_lower:
+            if "remedia" in topic_lower or "correct" in topic_lower:
                 # Mark pending items for this revision/topic as REVIEWED
                 # We assume that taking the quiz counts as reviewing them.
                 # If they fail again, the code below (step 2) will add new items.
@@ -531,9 +531,9 @@ async def generate_remediation_quiz(
         
         # Force topic to indicate remediation/revision for reliable detection downstream
         topic_lower = quiz_content.get("topic", "").lower()
-        if "remedia" not in topic_lower and "révision" not in topic_lower:
+        if "remedia" not in topic_lower and "correct" not in topic_lower:
             original_topic = quiz_content.get("topic", "Révision")
-            quiz_content["topic"] = f"{original_topic} (Révision)"
+            quiz_content["topic"] = f"{original_topic} (Correction)"
 
         # Inject revision_id if present so it persists through the quiz lifecycle
         if revision_id:
@@ -572,7 +572,7 @@ async def get_mastery_stats(
         for s in scores:
             if not s.topic: continue
             # Normalize topic
-            clean_topic = s.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
+            clean_topic = s.topic.replace(" (Remediation)", "").replace(" (Correction)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
             
             if clean_topic not in topic_map:
                 topic_map[clean_topic] = []
@@ -595,7 +595,7 @@ async def get_mastery_stats(
             if not e.topic: continue
             # Also clean topic for errors if needed, or rely on exact match? 
             # Ideally errors should also be grouped by clean topic.
-            t_key = e.topic.replace(" (Remediation)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
+            t_key = e.topic.replace(" (Remediation)", "").replace(" (Correction)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
             error_counts[t_key] = error_counts.get(t_key, 0) + 1
 
         for topic, topic_scores in topic_map.items():

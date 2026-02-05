@@ -138,7 +138,11 @@ async def generate_remediation_quiz_service(context_items: List[Dict[str, Any]],
     
     # Extract topics from context or questions to guide the LLM
     # This prevents it from thinking the topic is "Remediation"
-    topics_context = list(set([item['context'] or "General" for item in context_items if item['context']]))
+    def clean_topic_name(t):
+        if not t: return "General"
+        return t.replace(" (Remediation)", "").replace(" (Correction)", "").replace(" (Remédiation)", "").replace(" (Révision)", "").strip()
+
+    topics_context = list(set([clean_topic_name(item['context']) for item in context_items if item['context']]))
     joined_topics = ", ".join(topics_context)
 
     errors_desc = "\n".join([
@@ -163,7 +167,7 @@ async def generate_remediation_quiz_service(context_items: List[Dict[str, Any]],
     2. Identify the underlying concept for EACH failed question.
     3. Generate a NEW multiple-choice question to test that SAME concept, but phrased differently or using a different example.
     4. You MUST generate exactly one new question for every failed question provided in the input list. If there are 10 errors, generate 10 new questions.
-    5. The "topic" field in the JSON should be: "{joined_topics} (Remediation)".
+    5. The "topic" field in the JSON should be: "{joined_topics} (Correction)".
     6. **CRITICAL**: The questions must be about the SUBJECT MATTER ({joined_topics}). Do NOT generate questions about "remediation", "learning strategies", or "translation".
     7. **Language**: output MUST be in French.
     8. Provide a clear, helpful "explanation" for the correct answer.

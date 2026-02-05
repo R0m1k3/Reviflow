@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Play, BookOpen, ArrowRight, Book, AlertTriangle, X, Trash2, Sparkles, Lightbulb, Brain } from 'lucide-react';
 import { useAuth } from '../../stores/useAuth';
 import { api } from '../../lib/api';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -51,18 +51,24 @@ export const RecentRevisionsWidget = () => {
     });
 
     useEffect(() => {
-        if (!activeLearner) return;
+        if (!activeLearner?.id) {
+            setLoading(false);
+            return;
+        }
 
-        api.get<any>(`/quiz/stats/activity?learner_id=${activeLearner.id}`)
+        setLoading(true);
+        api.get<any>('/quiz/stats/activity', { params: { learner_id: activeLearner.id } })
             .then(res => {
                 const allRevisions = res.data.history
                     .flatMap((day: any) => day.items)
                     .filter((item: any) => item.type === 'REVISION');
                 setRevisions(allRevisions);
-                setLoading(false);
             })
-            .catch(() => setLoading(false));
-    }, [activeLearner]);
+            .catch((err) => {
+                console.error("Error fetching activity:", err);
+            })
+            .finally(() => setLoading(false));
+    }, [activeLearner?.id]);
 
     const getSubjectStyle = (subject?: string) => {
         if (subject === 'Mathématiques') return { color: 'text-blue-500', bg: 'bg-blue-50', icon: <BookOpen className="w-5 h-5" /> };
@@ -129,8 +135,30 @@ export const RecentRevisionsWidget = () => {
         }
     };
 
+    const renderEmptyState = () => (
+        <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-8 shadow-xl shadow-indigo-100/20 dark:shadow-none border border-slate-100 dark:border-slate-700 text-center">
+            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-700/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                📚
+            </div>
+            <h3 className="font-black text-lg text-slate-800 dark:text-white mb-2">
+                Aucun cours récent
+            </h3>
+            <p className="text-slate-400 text-sm font-medium mb-6">
+                Commencez une révision pour la voir apparaître ici !
+            </p>
+            <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/upload')}
+                className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
+            >
+                Ajouter un cours
+            </motion.button>
+        </div>
+    );
+
     if (loading) return <Skeleton className="h-48 w-full rounded-[2rem]" />;
-    if (revisions.length === 0) return null;
+    if (revisions.length === 0) return renderEmptyState();
 
     return (
         <>
