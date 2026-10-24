@@ -55,15 +55,17 @@ class UserRead(schemas.BaseUser[uuid.UUID]):
         return self.parental_pin is not None
 
 class UserCreate(schemas.BaseUserCreate):
+    """Public sign-up: role and parent are never client-controlled (always a parent account)."""
     first_name: Optional[str] = None
     username: Optional[str] = None
-    role: UserRole = UserRole.PARENT
+
+class ChildUserCreate(UserCreate):
+    """Internal only: used server-side by the parent-creates-child flow."""
+    role: UserRole = UserRole.LEARNER
     parent_id: Optional[uuid.UUID] = None
 
 class UserUpdate(schemas.BaseUserUpdate):
     first_name: Optional[str] = None
     username: Optional[str] = None
     openrouter_api_key: Optional[str] = None
-    role: Optional[UserRole] = None
-    parent_id: Optional[uuid.UUID] = None
     parental_pin: Optional[str] = None

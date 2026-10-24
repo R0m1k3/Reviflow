@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from app.modules.auth.service import auth_backend, fastapi_users, current_active_user
-from app.modules.auth.schemas import UserRead, UserCreate, UserUpdate
+from app.modules.auth.schemas import UserRead, UserCreate, UserUpdate, ChildUserCreate
 from app.modules.auth.models import User, UserRole, LearnerProfile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 from app.core.db import get_async_session
+from app.config import settings
 
 router = APIRouter()
 
@@ -17,11 +18,16 @@ router.include_router(
     tags=["auth"],
 )
 
-# /auth/register
-router.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    tags=["auth"],
-)
+# /auth/register (public sign-up can be disabled with ALLOW_REGISTRATION=false)
+if settings.ALLOW_REGISTRATION:
+    router.include_router(
+        fastapi_users.get_register_router(UserRead, UserCreate),
+        tags=["auth"],
+    )
+else:
+    @router.post("/register", tags=["auth"], status_code=403)
+    async def register_disabled():
+        raise HTTPException(status_code=403, detail="Les inscriptions sont désactivées")
 
 # /users/me
 router.include_router(
@@ -230,7 +236,7 @@ async def create_child_account(
     # Create the user entity for the child
     try:
         child_user = await user_manager.create(
-            UserCreate(
+            ChildUserCreate(
                 email=f"{username}@reviflow.app",
                 password=profile_data.get("password", "1234"), # Default PIN if not provided
                 username=username,
