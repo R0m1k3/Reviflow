@@ -6,8 +6,14 @@ services:
     ports:
       - "8686:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://reviflow:reviflow@db:5432/reviflow
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - DATABASE_URL=postgresql+asyncpg://reviflow:${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans .env}@db:5432/reviflow
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      # Secret de signature des JWT (obligatoire, au moins 32 caractères)
+      - SECRET_KEY=${SECRET_KEY:?Définissez SECRET_KEY dans .env (openssl rand -hex 32)}
+      # Inscription publique (true/false)
+      - ALLOW_REGISTRATION=${ALLOW_REGISTRATION:-true}
+      # Requêtes IA par jour et par famille avec la clé OpenRouter globale (0 = illimité)
+      - GLOBAL_API_KEY_DAILY_QUOTA=${GLOBAL_API_KEY_DAILY_QUOTA:-30}
 
     depends_on:
       db:
@@ -20,11 +26,10 @@ services:
 
   db:
     image: postgres:16-alpine
-    ports:
-      - "5460:5432"
+    # Pas de port publié : la base n'est accessible que depuis le réseau Docker interne
     environment:
       - POSTGRES_USER=reviflow
-      - POSTGRES_PASSWORD=reviflow
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans .env}
       - POSTGRES_DB=reviflow
     volumes:
       - postgres_data:/var/lib/postgresql/data
