@@ -23,7 +23,6 @@ async def on_startup():
     import os
     print(f"DEBUG: Current Working Directory: {os.getcwd()}")
     print(f"DEBUG: Directory Contents: {os.listdir('.')}")
-    print(f"DEBUG: Environment DATABASE_URL: {os.getenv('DATABASE_URL')}")
     
     try:
         print("DEBUG: Attempting to create DB and tables...")
@@ -79,8 +78,10 @@ if os.path.exists(static_dir):
             
         # Check if file exists in static directory (e.g. logo.png, favicon.png)
         # This allows serving root-level static files that are not in /assets
-        file_path = os.path.join(static_dir, full_path)
-        if os.path.isfile(file_path):
+        # realpath + containment check to prevent path traversal (../)
+        static_root = os.path.realpath(static_dir)
+        file_path = os.path.realpath(os.path.join(static_root, full_path))
+        if file_path.startswith(static_root + os.sep) and os.path.isfile(file_path):
             return FileResponse(file_path)
 
         # Also check for file extensions to avoid catching missing .png, .js, etc.
