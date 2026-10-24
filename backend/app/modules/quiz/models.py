@@ -30,6 +30,9 @@ class RemediationQueue(SQLModel, table=True):
 class Revision(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     learner_id: Optional[uuid.UUID] = Field(index=True)
+    # Account that created the revision (access control). NULL for legacy rows
+    # that could not be attributed: only reachable through learner_id or by a superuser.
+    owner_user_id: Optional[uuid.UUID] = Field(default=None, index=True)
     topic: str
     subject: Optional[str] = None # Added for categorization
     text_content: str  # The full lesson text

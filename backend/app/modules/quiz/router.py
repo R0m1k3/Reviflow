@@ -15,29 +15,44 @@ from app.modules.quiz.service import generate_quiz
 from sqlmodel import select, delete
 
 from app.config import settings
+from app.core.api_key import get_effective_api_key
 
 router = APIRouter()
 
-async def get_effective_api_key(user: User, db: AsyncSession) -> Optional[str]:
-    """Retrieve the API key from user, parent, or global settings."""
-    # 1. User specific key
-    if user.openrouter_api_key:
-        return user.openrouter_api_key
-    
-    # 2. Parent's key (if learner)
-    if user.parent_id:
-        # Use simple select for Parent
-        statement = select(User).where(User.id == user.parent_id)
-        result = await db.execute(statement)
-        parent = result.scalar_one_or_none()
-        if parent and parent.openrouter_api_key:
-            return parent.openrouter_api_key
-            
-    # 3. Global settings key
-    if settings.OPENROUTER_API_KEY:
-        return settings.OPENROUTER_API_KEY
-        
-    return None
+
+async def user_can_access_learner(user: User, learner_id: Optional[uuid.UUID], db: AsyncSession) -> bool:
+    """A learner profile is accessible to its own learner account, to the parent
+    of that account, and to superusers. learner_id=None means the user's own space."""
+    if learner_id is None or user.is_superuser:
+        return True
+    from app.modules.auth.models import LearnerProfile
+    learner = await db.get(LearnerProfile, learner_id)
+    if not learner:
+        return False
+    if learner.user_id == user.id:
+        return True
+    learner_user = await db.get(User, learner.user_id)
+    return learner_user is not None and learner_user.parent_id == user.id
+
+
+async def ensure_learner_access(user: User, learner_id: Optional[uuid.UUID], db: AsyncSession) -> None:
+    if not await user_can_access_learner(user, learner_id, db):
+        raise HTTPException(status_code=404, detail="Learner not found")
+
+
+async def get_accessible_revision(revision_id: uuid.UUID, user: User, db: AsyncSession):
+    """Fetch a revision the user is allowed to access (owner, learner/parent of
+    its learner, or superuser), else 404."""
+    from app.modules.quiz.models import Revision
+    revision = await db.get(Revision, revision_id)
+    if revision and (
+        user.is_superuser
+        or (revision.owner_user_id is not None and revision.owner_user_id == user.id)
+        or (revision.learner_id is not None and await user_can_access_learner(user, revision.learner_id, db))
+    ):
+        return revision
+    raise HTTPException(status_code=404, detail="Revision not found")
+
 
 @router.post("/generate", response_model=QuizResponse)
 async def generate_quiz_endpoint(
@@ -46,6 +61,8 @@ async def generate_quiz_endpoint(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Generates a quiz from the provided text content."""
+    await ensure_learner_access(user, request.learner_id, db)
+
     # Determine which API key to use
     api_key = await get_effective_api_key(user, db)
 
@@ -62,6 +79,7 @@ async def generate_quiz_endpoint(
         from app.modules.quiz.models import Revision
         revision = Revision(
             learner_id=request.learner_id, # Optional
+            owner_user_id=user.id,
             topic=request.title if request.title else data["quiz"]["topic"],
             subject=request.subject,
             text_content=request.text_content,
@@ -103,6 +121,10 @@ async def save_score(
 ):
     """Saves a quiz score."""
     from app.modules.quiz.models import RemediationQueue
+
+    await ensure_learner_access(user, score_data.learner_id, db)
+    if score_data.revision_id:
+        await get_accessible_revision(score_data.revision_id, user, db)
 
     score = Score(
         user_id=user.id,
@@ -281,10 +303,7 @@ async def save_progress(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Saves the current progress of a revision quiz."""
-    from app.modules.quiz.models import Revision
-    revision = await db.get(Revision, data.revision_id)
-    if not revision:
-        raise HTTPException(status_code=404, detail="Revision not found")
+    revision = await get_accessible_revision(data.revision_id, user, db)
         
     # Save state as JSON
     state = {
@@ -309,18 +328,15 @@ async def start_next_series(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Generates and loads the NEXT series of questions for a revision."""
+    revision = await get_accessible_revision(revision_id, user, db)
+
+    if revision.current_series >= revision.total_series:
+        raise HTTPException(status_code=400, detail="Already at the last series.")
+
     api_key = await get_effective_api_key(user, db)
     if not api_key:
          raise HTTPException(status_code=401, detail="No API Key")
 
-    from app.modules.quiz.models import Revision
-    revision = await db.get(Revision, revision_id)
-    if not revision:
-        raise HTTPException(status_code=404, detail="Revision not found")
-        
-    if revision.current_series >= revision.total_series:
-        raise HTTPException(status_code=400, detail="Already at the last series.")
-        
     # Increment Series
     next_series = revision.current_series + 1
     
@@ -365,12 +381,7 @@ async def get_revision(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Retrieves a full revision (content + quiz) by ID."""
-    from app.modules.quiz.models import Revision
-    revision = await db.get(Revision, revision_id)
-    if not revision:
-        raise HTTPException(status_code=404, detail="Revision not found")
-        
-    return revision
+    return await get_accessible_revision(revision_id, user, db)
 
 @router.get("/revisions")
 async def list_revisions(
@@ -381,9 +392,15 @@ async def list_revisions(
     """Lists all revisions for a learner, with pending error counts."""
     from app.modules.quiz.models import Revision, RemediationQueue
     from sqlalchemy import func
-    
+
+    await ensure_learner_access(user, learner_id, db)
+
     # 1. Base query for revisions
-    stmt = select(Revision).where(Revision.learner_id == learner_id).order_by(Revision.created_at.desc())
+    stmt = select(Revision).where(Revision.learner_id == learner_id)
+    if learner_id is None:
+        # Revisions without learner: only the user's own
+        stmt = stmt.where(Revision.owner_user_id == user.id)
+    stmt = stmt.order_by(Revision.created_at.desc())
     result = await db.execute(stmt)
     revisions = result.scalars().all()
     
@@ -440,9 +457,8 @@ async def get_remediation_count(
 ):
     """Returns number of pending remediation items."""
     from app.modules.quiz.models import RemediationQueue
-    # Verify learner belongs to user (or is user) - simple check
-    # In full app we'd check if learner_id in user.learner_profiles
-    
+    await ensure_learner_access(user, learner_id, db)
+
     statement = select(RemediationQueue).where(
         RemediationQueue.learner_id == learner_id,
         RemediationQueue.status == "PENDING"
@@ -459,6 +475,10 @@ async def generate_remediation_quiz(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Generates a quiz based on pending errors."""
+    await ensure_learner_access(user, learner_id, db)
+    if revision_id:
+        await get_accessible_revision(revision_id, user, db)
+
     # Determine which API key to use
     api_key = await get_effective_api_key(user, db)
 
@@ -552,6 +572,7 @@ async def get_mastery_stats(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Calculates mastery level per topic."""
+    await ensure_learner_access(user, learner_id, db)
     try:
         from app.modules.quiz.models import RemediationQueue
         
@@ -688,12 +709,20 @@ async def get_activity_stats(
     def to_date_str(dt):
         return dt.strftime("%Y-%m-%d")
 
+    await ensure_learner_access(user, learner_id, db)
+
     # Fetch Revisions
-    revisions_stmt = select(Revision).where(Revision.learner_id == learner_id).order_by(Revision.created_at.desc())
+    revisions_stmt = select(Revision).where(Revision.learner_id == learner_id)
+    if learner_id is None:
+        revisions_stmt = revisions_stmt.where(Revision.owner_user_id == user.id)
+    revisions_stmt = revisions_stmt.order_by(Revision.created_at.desc())
     revisions = (await db.execute(revisions_stmt)).scalars().all()
-    
+
     # Fetch Scores (Quizzes)
-    scores_stmt = select(Score).where(Score.learner_id == learner_id).order_by(Score.created_at.desc())
+    scores_stmt = select(Score).where(Score.learner_id == learner_id)
+    if learner_id is None:
+        scores_stmt = scores_stmt.where(Score.user_id == user.id)
+    scores_stmt = scores_stmt.order_by(Score.created_at.desc())
     scores = (await db.execute(scores_stmt)).scalars().all()
     
     # Fetch Pending Remediation Counts per Revision
@@ -794,14 +823,11 @@ async def reset_revision(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Resets a revision to Series 1 to allow starting over."""
+    revision = await get_accessible_revision(revision_id, user, db)
+
     api_key = await get_effective_api_key(user, db)
     if not api_key:
          raise HTTPException(status_code=401, detail="No API Key")
-
-    from app.modules.quiz.models import Revision
-    revision = await db.get(Revision, revision_id)
-    if not revision:
-        raise HTTPException(status_code=404, detail="Revision not found")
         
     # Reset State
     revision.current_series = 1
@@ -845,11 +871,9 @@ async def delete_revision(
     db: AsyncSession = Depends(get_async_session)
 ):
     """Deletes a revision and its related data (Scores, RemediationQueue)."""
-    from app.modules.quiz.models import Revision, Score, RemediationQueue
-    
-    revision = await db.get(Revision, revision_id)
-    if not revision:
-        raise HTTPException(status_code=404, detail="Revision not found")
+    from app.modules.quiz.models import Score, RemediationQueue
+
+    revision = await get_accessible_revision(revision_id, user, db)
         
     # Cascade deletes
     stmt_remed = delete(RemediationQueue).where(RemediationQueue.revision_id == revision_id)

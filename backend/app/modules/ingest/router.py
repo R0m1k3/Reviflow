@@ -13,28 +13,9 @@ from app.core.db import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.config import settings
+from app.core.api_key import get_effective_api_key
 
 router = APIRouter()
-
-async def get_effective_api_key(user: User, db: AsyncSession) -> Optional[str]:
-    """Retrieve the API key from user, parent, or global settings."""
-    # 1. User specific key
-    if user.openrouter_api_key:
-        return user.openrouter_api_key
-    
-    # 2. Parent's key (if learner)
-    if user.parent_id:
-        statement = select(User).where(User.id == user.parent_id)
-        result = await db.execute(statement)
-        parent = result.scalar_one_or_none()
-        if parent and parent.openrouter_api_key:
-            return parent.openrouter_api_key
-            
-    # 3. Global settings key
-    if settings.OPENROUTER_API_KEY:
-        return settings.OPENROUTER_API_KEY
-        
-    return None
 
 
 @router.post(
